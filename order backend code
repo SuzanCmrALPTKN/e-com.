@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace projem
+{
+    public partial class UrunSiparis : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                vericek();
+            } 
+        }
+        protected void vericek()
+        {
+            SqlConnection baglanti = new SqlConnection("Data Source=SUZAN-CEMRE\\..; Initial Catalog=SITE; User Id=; password;");
+            SqlCommand komut = new SqlCommand("SELECT * FROM URUNLERR ", baglanti);
+            baglanti.Open();
+            SqlDataReader dr = komut.ExecuteReader();
+            if (dr != null)
+            {
+                Repturunler.DataSource = dr;
+                Repturunler.DataBind();
+            }
+            dr.Close();
+            baglanti.Close();
+        }
+        protected void Repeater1_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName == "ekle")
+            {
+                int LOGICALREF = Convert.ToInt32(e.CommandArgument.ToString());
+                TextBox txt = Repturunler.Items[e.Item.ItemIndex].FindControl("txtsec") as TextBox;
+                SqlConnection baglanti = new SqlConnection("Data Source=SUZAN-CEMRE\\..; Initial Catalog=SITE; MultipleActiveResultSets=True; User Id=; password;");
+                baglanti.Open();
+                SqlCommand cmd = new SqlCommand("INSERT INTO Z_Sepet(URUNID,MIKTAR,DURUM) VALUES('"+LOGICALREF+"','" + txt.Text + "', 0)", baglanti);
+                cmd.ExecuteNonQuery();
+                baglanti.Close();
+            }
+        }
+    }
+}
